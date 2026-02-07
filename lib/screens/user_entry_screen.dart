@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../storage/hive_boxes.dart';
-import '../logic/sahaj_controller.dart'; // ✅ added
+import '../logic/sahaj_controller.dart';
+import '../voice/tts_service.dart'; // ✅ TTS added
 import 'ghar_ki_sthithi_screen.dart';
 import 'keval_dekhne_hetu_screen.dart';
 
@@ -13,11 +14,23 @@ class UserEntryScreen extends StatefulWidget {
 
 class _UserEntryScreenState extends State<UserEntryScreen> {
   final TextEditingController _nameCtrl = TextEditingController();
-
-  final SahajController _controller = SahajController(); // ✅ added
+  final SahajController _controller = SahajController();
 
   String? gender;
   String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    TtsService.init(); // ✅ init once
+  }
+
+  @override
+  void dispose() {
+    TtsService.stop();
+    _nameCtrl.dispose();
+    super.dispose();
+  }
 
   bool _validateAndSave() {
     final name = _nameCtrl.text.trim();
@@ -37,6 +50,23 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
     return true;
   }
 
+  // 🔊 SMART TTS LOGIC
+  void _speakHint() {
+    final name = _nameCtrl.text.trim();
+
+    if (name.isEmpty) {
+      TtsService.speak('कृपया अपना नाम लिखें');
+      return;
+    }
+
+    if (gender == null) {
+      TtsService.speak('अब कृपया अपना लिंग चुनें');
+      return;
+    }
+
+    TtsService.speak('धन्यवाद, अब आप आगे बढ़ सकते हैं');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,6 +74,12 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
       appBar: AppBar(
         title: const Text('आप का परिचय'),
         backgroundColor: Colors.orange,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.volume_up),
+            onPressed: _speakHint, // ✅ TTS trigger
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -66,7 +102,7 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             DropdownButtonFormField<String>(
-              initialValue: gender, // ✅ fixed (was value)
+              initialValue: gender,
               hint: const Text('चुनें / Select'),
               items: const [
                 DropdownMenuItem(
@@ -96,7 +132,7 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (_) => GharKiSthitiScreen(
-                      controller: _controller, // ✅ passed
+                      controller: _controller,
                       userName: _nameCtrl.text.trim(),
                     ),
                   ),
