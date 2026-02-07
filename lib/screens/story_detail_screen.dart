@@ -49,7 +49,13 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     try {
       await _tts.stop();
       await Future.delayed(const Duration(milliseconds: 300));
-      await _tts.speak(widget.story.hindi);
+
+      // ✅ STORY + LEARNING BOTH SPOKEN
+      await _tts.speak(
+        '${widget.story.hindi}\n\n'
+        'इस कहानी से हमें यह सीख मिलती है कि '
+        '${widget.story.learning}',
+      );
     } catch (_) {
       setState(() => isSpeaking = false);
     }
@@ -77,6 +83,14 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             _storyBox('📜 शुद्ध हिंदी', widget.story.hindi),
             const SizedBox(height: 20),
             _storyBox('🗣️ Hinglish', widget.story.hinglish),
+            const SizedBox(height: 20),
+
+            // ✅ LEARNING BOX
+            _storyBox(
+              '✅ इस कहानी से सीख',
+              widget.story.learning,
+            ),
+
             const SizedBox(height: 90),
           ],
         ),
@@ -108,9 +122,13 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
           const SizedBox(height: 12),
           Text(
             text,

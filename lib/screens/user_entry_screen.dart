@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../storage/hive_boxes.dart';
 import '../logic/sahaj_controller.dart';
-import '../voice/tts_service.dart'; // ✅ TTS added
+import '../voice/tts_service.dart';
 import 'ghar_ki_sthithi_screen.dart';
 import 'keval_dekhne_hetu_screen.dart';
 
@@ -22,7 +22,7 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
   @override
   void initState() {
     super.initState();
-    TtsService.init(); // ✅ init once
+    TtsService.init();
   }
 
   @override
@@ -37,11 +37,17 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
 
     if (name.isEmpty) {
       setState(() => error = 'कृपया अपना नाम लिखें');
+
+      // 🔊 NEW: auto speak error
+      TtsService.speak('कृपया अपना नाम लिखें');
       return false;
     }
 
     if (gender == null) {
       setState(() => error = 'कृपया लिंग चुनें');
+
+      // 🔊 NEW: auto speak error
+      TtsService.speak('कृपया अपना लिंग चुनें');
       return false;
     }
 
@@ -50,7 +56,7 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
     return true;
   }
 
-  // 🔊 SMART TTS LOGIC
+  // 🔊 Speaker icon logic (unchanged)
   void _speakHint() {
     final name = _nameCtrl.text.trim();
 
@@ -77,7 +83,7 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.volume_up),
-            onPressed: _speakHint, // ✅ TTS trigger
+            onPressed: _speakHint,
           ),
         ],
       ),
@@ -96,7 +102,9 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
                 hintText: 'नाम / Name',
               ),
             ),
+
             const SizedBox(height: 20),
+
             const Text(
               'लिंग / Gender',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -116,6 +124,7 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
               ],
               onChanged: (v) => setState(() => gender = v),
             ),
+
             if (error != null) ...[
               const SizedBox(height: 10),
               Text(
@@ -123,11 +132,14 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
                 style: const TextStyle(color: Colors.red),
               ),
             ],
+
             const SizedBox(height: 30),
+
             _bigButton(
               '🏠  घर की स्थिति जानने',
               () {
                 if (!_validateAndSave()) return;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -139,11 +151,14 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
                 );
               },
             ),
+
             const SizedBox(height: 16),
+
             _bigButton(
               '👀  केवल देखने हेतु',
               () {
                 if (!_validateAndSave()) return;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(

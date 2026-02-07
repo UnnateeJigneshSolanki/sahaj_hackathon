@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/learning_stories.dart';
+import '../voice/tts_service.dart';
 import 'story_detail_screen.dart';
 
 class KevalDekhneHetuScreen extends StatelessWidget {
@@ -9,6 +10,31 @@ class KevalDekhneHetuScreen extends StatelessWidget {
     super.key,
     required this.userName,
   });
+
+  // 🔊 OPEN STORY + AUTO TTS
+  void _openStoryWithTts(
+    BuildContext context,
+    LearningStory story,
+  ) async {
+    // 1️⃣ Open detail screen first
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => StoryDetailScreen(story: story),
+      ),
+    );
+
+    // 2️⃣ Small delay so screen settles
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    // 3️⃣ Speak story + learning
+    TtsService.speak('''
+${story.hindi}
+
+आज की सीख:
+${story.learning}
+''');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,67 +59,75 @@ class KevalDekhneHetuScreen extends StatelessWidget {
             final story = learningStories[index];
             final iconData = _iconForStory(story.title);
 
-            return InkWell(
-              borderRadius: BorderRadius.circular(22),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => StoryDetailScreen(story: story),
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFDF8),
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFDF8),
-                  borderRadius: BorderRadius.circular(22),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 🎭 Icon
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.orange.shade100,
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.orange.shade100,
-                      ),
-                      child: Icon(
-                        iconData,
-                        size: 30,
-                        color: Colors.orange.shade700,
-                      ),
+                    child: Icon(
+                      iconData,
+                      size: 30,
+                      color: Colors.orange.shade700,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      story.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        height: 1.3,
-                      ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // 📖 Title
+                  Text(
+                    story.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      height: 1.3,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'गाँव की सच्ची कहानी',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade700,
-                      ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // ✅ LEARNING / MORAL
+                  Text(
+                    'सीख: ${story.learning}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.red,
+                      height: 1.3,
                     ),
-                    const Spacer(),
-                    Row(
+                  ),
+
+                  const Spacer(),
+
+                  // 🔊 SUNO (ONLY THIS TRIGGERS TTS)
+                  InkWell(
+                    onTap: () => _openStoryWithTts(context, story),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: const [
-                        Icon(Icons.volume_up,
-                            size: 16, color: Colors.orange),
+                        Icon(
+                          Icons.volume_up,
+                          size: 16,
+                          color: Colors.orange,
+                        ),
                         SizedBox(width: 6),
                         Text(
                           'सुनो',
@@ -105,8 +139,8 @@ class KevalDekhneHetuScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },

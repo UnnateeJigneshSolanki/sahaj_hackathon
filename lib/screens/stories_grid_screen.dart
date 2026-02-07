@@ -65,7 +65,9 @@ class StoriesGridScreen extends StatelessWidget {
                         size: 30,
                       ),
                     ),
+
                     const SizedBox(height: 16),
+
                     Text(
                       story.title,
                       style: const TextStyle(
@@ -74,15 +76,23 @@ class StoriesGridScreen extends StatelessWidget {
                         height: 1.3,
                       ),
                     ),
+
                     const SizedBox(height: 8),
+
+                    // ✅ LEARNING SHOWN HERE
                     Text(
-                      'कहानी सुनें और समझें',
+                      'सीख: ${story.learning}',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade700,
+                        height: 1.3,
                       ),
                     ),
+
                     const Spacer(),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: const [
